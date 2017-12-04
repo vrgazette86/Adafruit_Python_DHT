@@ -26,6 +26,10 @@ import time
 import sys
 import httplib, urllib
 import json
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 deviceId = "DQ4jypZZ"
 deviceKey = "VRChbllqKu31JBUM" 
 def post_to_mcs(payload): 
@@ -64,7 +68,11 @@ else:
 while True:
 	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 	h0, t0= Adafruit_DHT.read_retry(sensor, pin)
-
+	SwitchStatus = GPIO.input(24)
+	if( SwitchStatus == 0):
+		print('Button pressed')
+	else:
+		print('Button released')
 # Un-comment the line below to convert the temperature to Fahrenheit.
 # temperature = temperature * 9/5.0 + 32
 
@@ -75,7 +83,7 @@ while True:
 	if humidity is not None and temperature is not None:
 		print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
 		payload = {"datapoints":[{"dataChnId":"Humidity","values":{"value":h0}},
-			{"dataChnId":"Temperature","values":{"value":t0}}]} 
+			{"dataChnId":"Temperature","values":{"value":t0}},{"dataChnId":"SwitchStatus","values":{"value":SwitchStatus}}]} 
 		post_to_mcs(payload)
 		time.sleep(10) 
 
